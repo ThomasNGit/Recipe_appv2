@@ -1,8 +1,40 @@
 import RecipeList from "./RecipeList";
 import "../css/app.css";
+import { useState } from "react";
+import { v4 as uuidv4 } from "uuid";
 
 function App() {
-  return <RecipeList recipes={sampleRecipes} />;
+  const [recipes, setRecipes] = useState(sampleRecipes);
+
+  function handleRecipeAdd() {
+    const newRecipe = {
+      id: uuidv4(),
+      name: "New",
+      servings: 1,
+      cookTime: "1:00",
+      instructions: "instr",
+      ingredients: [
+        {
+          id: uuidv4(),
+          name: "Name",
+          amount: "1 Tbs",
+        },
+      ],
+    };
+    setRecipes([...recipes, newRecipe]);
+  }
+
+  function handleRecipeDelete(id) {
+    setRecipes(recipes.filter((recipe) => recipe.id !== id));
+  }
+
+  return (
+    <RecipeList
+      recipes={recipes}
+      handleRecipeAdd={handleRecipeAdd}
+      handleRecipeDelete={handleRecipeDelete}
+    />
+  );
 }
 
 const sampleRecipes = [
@@ -31,7 +63,7 @@ const sampleRecipes = [
     name: "Plain pork",
     servings: 5,
     cookTime: "0:45",
-    instructions: "1. Put paprika on pork \n 2. Put pork in oven\n3. Eat pork",
+    instructions: "1. Put paprika on pork \n2. Put pork in oven\n3. Eat pork",
     ingredients: [
       {
         id: 1,
