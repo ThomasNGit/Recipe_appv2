@@ -1,12 +1,25 @@
 import RecipeList from "./RecipeList";
 import "../css/app.css";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
+import RecipeEdit from "./RecipeEdit";
+
+export const RecipeContext = React.createContext();
 
 const LOCAL_STORAGE_KEY = "reactRecipeBook.recipes";
 
 function App() {
+  const [selectedRecipeId, setSelectedRecipeId] = useState();
   const [recipes, setRecipes] = useState(sampleRecipes);
+  const selectedRecipe = recipes.find(
+    (recipe) => recipe.id === selectedRecipeId
+  );
+
+  const recipeContextValue = {
+    handleRecipeAdd,
+    handleRecipeDelete,
+    handleRecipeSelect,
+  };
 
   useEffect(() => {
     const recipeJSON = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -16,6 +29,10 @@ function App() {
   useEffect(() => {
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(recipes));
   }, [recipes]);
+
+  function handleRecipeSelect(id) {
+    setSelectedRecipeId(id);
+  }
 
   function handleRecipeAdd() {
     const newRecipe = {
@@ -40,11 +57,10 @@ function App() {
   }
 
   return (
-    <RecipeList
-      recipes={recipes}
-      handleRecipeAdd={handleRecipeAdd}
-      handleRecipeDelete={handleRecipeDelete}
-    />
+    <RecipeContext.Provider value={recipeContextValue}>
+      <RecipeList recipes={recipes} />
+      {selectedRecipe && <RecipeEdit recipe={selectedRecipe} />}
+    </RecipeContext.Provider>
   );
 }
 
@@ -54,8 +70,7 @@ const sampleRecipes = [
     name: "Plain chicken",
     servings: 3,
     cookTime: "1:45",
-    instructions:
-      "1. Put salt on chicken\n2. Put chicken in oven\n3. Eat chicken",
+    instructions: "Put salt on chicken. Put chicken in oven. Eat chicken",
     ingredients: [
       {
         id: 1,
@@ -74,7 +89,7 @@ const sampleRecipes = [
     name: "Plain pork",
     servings: 5,
     cookTime: "0:45",
-    instructions: "1. Put paprika on pork \n2. Put pork in oven\n3. Eat pork",
+    instructions: "Put paprika on pork. Put pork in oven. Eat pork",
     ingredients: [
       {
         id: 1,
